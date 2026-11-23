@@ -2,6 +2,8 @@
 
 一个单文件网页：把太阳与八大行星的引力势阱画在同一条横轴上，用来说明**为什么去水星这么难**。
 
+![太阳系引力势阱页面，小坑放大 ×40](preview.png)
+
 打开 [index.html](index.html) 即可，无需构建、无外部依赖、不联网。
 目标是任意现代浏览器（Chrome / Edge / Firefox / Safari），支持高 DPI 屏幕与触屏悬停。
 
@@ -85,6 +87,7 @@ v = √( GM☉ · (2/r − 1/a_T) ),    a_T = 0.6935 AU（地球→水星霍曼�
 ```
 mercury-well/
 ├── index.html    主页面：单文件自包含，浏览器直接打开
+├── preview.png   README 展示图（小坑放大 ×40 时的渲染）
 └── README.md     本文件
 ```
 
