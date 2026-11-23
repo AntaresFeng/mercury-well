@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>太阳系引力势阱 · 为什么水星难去</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #05070f;
+    color: #dfe9f5;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 30px 20px 70px; }
+  h1 { font-size: 21px; margin: 0 0 8px; font-weight: 600; letter-spacing: .3px; }
+  h1 .dim { color: #5d7391; font-weight: 400; font-size: 14px; }
+  .sub { color: #7f93ab; font-size: 14px; margin: 0 0 22px; line-height: 1.6; }
+  .sub b { color: #9ec5f0; font-weight: 500; }
+  [hidden] { display: none !important; }
+
+  .tabs { display: flex; gap: 8px; margin: 0 0 16px; flex-wrap: wrap; }
+  .tab {
+    padding: 7px 16px; border-radius: 9px; font-size: 13px; color: #8ba3bd;
+    background: rgba(30,48,80,.45); border: 1px solid rgba(90,140,220,.22);
+    cursor: pointer; font-family: inherit;
+  }
+  .tab:hover { color: #c6dcf5; }
+  .tab.active {
+    color: #eaf4ff; background: rgba(60,120,200,.30);
+    border-color: rgba(120,190,255,.5);
+    box-shadow: 0 0 14px rgba(80,160,255,.22);
+  }
+
+  .panel {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    margin-bottom: 12px; font-size: 13px; color: #8ba3bd;
+  }
+  .panel label { white-space: nowrap; }
+  .panel input[type=range] {
+    -webkit-appearance: none; appearance: none;
+    width: 200px; height: 4px; border-radius: 2px;
+    background: linear-gradient(90deg, #2a4a7a, #5aa9e6);
+    outline: none; cursor: pointer;
+  }
+  .panel input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 15px; height: 15px; border-radius: 50%;
+    background: #7fc4ff;
+    box-shadow: 0 0 10px rgba(110,190,255,.9);
+    cursor: pointer;
+  }
+  .panel input[type=range]::-moz-range-thumb {
+    width: 15px; height: 15px; border: none; border-radius: 50%;
+    background: #7fc4ff; box-shadow: 0 0 10px rgba(110,190,255,.9); cursor: pointer;
+  }
+  .tag {
+    padding: 3px 10px; border-radius: 20px;
+    background: rgba(60,120,200,.16);
+    border: 1px solid rgba(90,150,230,.28);
+    color: #8fc4f5; font-size: 12px;
+  }
+
+  .seg { display: inline-flex; gap: 6px; }
+  .mode-btn {
+    padding: 4px 12px; border-radius: 7px; font-size: 12px; color: #8ba3bd;
+    background: rgba(30,48,80,.45); border: 1px solid rgba(90,140,220,.22);
+    cursor: pointer; font-family: inherit;
+  }
+  .mode-btn.active {
+    color: #eaf4ff; background: rgba(70,150,120,.25);
+    border-color: rgba(120,220,180,.45);
+  }
+  .run-btn {
+    padding: 5px 16px; border-radius: 8px; font-size: 13px; color: #a9d8ff;
+    background: rgba(70,150,220,.20); border: 1px solid rgba(110,190,255,.38);
+    cursor: pointer; font-family: inherit;
+  }
+  .run-btn:hover { background: rgba(70,150,220,.32); color: #d5ecff; }
+
+  .stage {
+    position: relative; border-radius: 14px; overflow: hidden;
+    border: 1px solid rgba(90,140,220,.16);
+    background: #060911;
+    box-shadow: 0 20px 50px -20px rgba(0,0,0,.9);
+  }
+  canvas { display: block; width: 100%; }
+
+  .runbar {
+    margin-top: 12px; padding: 12px 16px; border-radius: 12px;
+    background: rgba(16,34,48,.55);
+    border: 1px solid rgba(90,180,220,.20);
+  }
+  .runbar .run-status { font-size: 14px; font-weight: 600; color: #8fe0ff; margin-bottom: 8px; }
+  .runbar .run-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px 18px;
+  }
+  .runbar .run-grid > div { display: flex; flex-direction: column; gap: 3px; }
+  .runbar .run-grid span { font-size: 11px; color: #6d819b; letter-spacing: .3px; }
+  .runbar .run-grid b { font-size: 14px; color: #d6e6fa; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .runbar.done .run-status { color: #ffb08a; }
+  .run-note {
+    margin-top: 10px; padding-top: 10px;
+    border-top: 1px dashed rgba(120,190,255,.25);
+    font-size: 12.5px; line-height: 1.7; color: #e8c9a0;
+  }
+  .run-note b { color: #ffd9a0; font-weight: 600; }
+
+  .info {
+    margin-top: 16px; padding: 16px 18px; border-radius: 12px;
+    background: rgba(18,30,54,.5);
+    border: 1px solid rgba(90,140,220,.16);
+    min-height: 96px;
+  }
+  .info-head { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+  .info-head .dim { color: #5d7391; font-weight: 400; font-size: 13px; }
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px 18px;
+  }
+  .info-grid > div { display: flex; flex-direction: column; gap: 4px; }
+  .info-grid span { font-size: 11px; color: #6d819b; letter-spacing: .3px; }
+  .info-grid b { font-size: 14px; color: #d6e6fa; font-weight: 500; }
+  .verdict { margin-top: 10px; font-size: 12.5px; line-height: 1.6; color: #d9c9a8; }
+
+  .pv-note { margin: 14px 0 0; font-size: 12.5px; color: #6d819b; line-height: 1.6; }
+
+  .foot {
+    margin-top: 26px; padding-top: 20px;
+    border-top: 1px solid rgba(90,140,220,.12);
+    font-size: 13px; line-height: 1.85; color: #7e93ac;
+  }
+  .foot b { color: #a9c8e8; font-weight: 500; }
+  .foot em { color: #e2a86a; font-style: normal; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>太阳系引力势阱 <span class="dim">为什么水星难去</span></h1>
+  <p class="sub">
+    横轴是日心距离，纵轴是引力势阱深度。<b>太阳的 1/r 深井</b>是主角，各行星自己的小坑叠在太阳的坡上——
+    水星那个坑又小又浅，在井底几乎看不见。点「▶ 演示」可以看到探测器从地球滑向水星时如何越滑越快，
+    而水星太浅的势阱根本接不住它。
+  </p>
+
+  <div class="tabs">
+    <button class="tab active" id="tabSun">太阳的势阱 · 去水星</button>
+    <button class="tab" id="tabP">行星自身的势阱（v1 存档）</button>
+  </div>
+
+  <div id="viewSun">
+    <div class="panel">
+      <span class="seg">
+        <button class="mode-btn active" data-mode="inner">内太阳系</button>
+        <button class="mode-btn" data-mode="full">全系统（对数）</button>
+      </span>
+      <label for="compS">纵向压缩</label>
+      <input type="range" id="compS" min="0.35" max="1" step="0.01" value="0.6">
+      <span class="tag" id="hintS"></span>
+    </div>
+    <div class="panel">
+      <label for="exS">行星小坑放大</label>
+      <input type="range" id="exS" min="1" max="40" step="1" value="5">
+      <span class="tag" id="exTag"></span>
+      <button class="run-btn" id="btnRun">▶ 演示：地球→水星</button>
+    </div>
+
+    <div class="stage">
+      <canvas id="cvSun"></canvas>
+    </div>
+
+    <div class="runbar" id="runbar" hidden>
+      <div class="run-status" id="stStatus">—</div>
+      <div class="run-grid">
+        <div><span>日心距离</span><b id="stR">—</b></div>
+        <div><span>转移轨道速度</span><b id="stV">—</b></div>
+        <div><span>相对水星速度</span><b id="stRel">—</b></div>
+        <div><span>已释放太阳势能</span><b id="stPhi">—</b></div>
+      </div>
+      <div class="run-note" id="stNote" hidden>
+        <b>到达水星轨道：</b>转移轨道速度 57.5 km/s，水星公转 47.4 km/s —— 你比水星快 10.1 km/s，不刹车就直接冲过去。
+        而水星逃逸速度只有 4.25 km/s、自身势阱只有当地太阳势阱的 <b>1/254</b>，靠它的引力"自动刹车"根本不可能。
+        真实方案是多次引力借力磨掉速度，再反推入轨：信使号 6 次飞掠（1 地球 + 2 金星 + 3 水星），入轨减速 ≈0.85 km/s（不借力要 3.13）；
+        贝皮科伦坡 9 次飞掠，2026-11-26 入轨。
+      </div>
+    </div>
+
+    <div class="info" id="infoSun"></div>
+  </div>
+
+  <div id="viewP" hidden>
+    <div class="panel">
+      <label for="compP">比例压缩</label>
+      <input type="range" id="compP" min="0.35" max="1" step="0.01" value="0.45">
+      <span class="tag" id="hintP">强压缩：所有坑都看得见</span>
+    </div>
+    <div class="stage">
+      <canvas id="cvP"></canvas>
+    </div>
+    <div class="info" id="infoP">
+      <div class="info-head"><span class="dim">把鼠标移到行星上查看数据</span></div>
+    </div>
+    <p class="pv-note">这一栏就是上一版（v1）的原图：只有 8 颗行星自身的势阱并排比大小——没有太阳、没有动力学。</p>
+  </div>
+
+  <div class="foot">
+    <p>
+      <b>这一版模拟了什么：</b>太阳的点质量引力势 Φ = −GM☉/r（横轴为日心距离：内太阳系线性、全景对数）；
+      行星是叠加在太阳坡上的小坑（坑深 ∝ 表面势 |GM/R| = 逃逸速度²/2，宽度与深度均有可视化夸大，真实比例见悬停面板）；
+      「演示」按地球→水星霍曼转移的 vis-viva 能量守恒 v² = GM☉(2/r − 1/a) 实时计算速度。
+    </p>
+    <p>
+      <b>仍未模拟：</b>行星之间的 N 体摄动与真实星历、引力借力的具体飞掠轨道、太阳光压与热环境、
+      广义相对论（水星近日点进动 43″/百年）、月球等卫星。所以严格说这不是轨道仿真，而是
+      <b>能量账的可视化</b>——但把太阳补进来之后，"水星为什么难去"才真正立得住。
+    </p>
+    <p>
+      <b>关键数字：</b>太阳势阱在地球轨道处深 887 km²/s²（地球自身 62.6，只有 1/14）；
+      在水星轨道处深 2292 km²/s²（水星自身 9.0，只有 <em>1/254</em>）。
+      霍曼直达：出发 v∞ ≈ 7.5 km/s，到达时相对水星 ≈ 10.1 km/s，而水星逃逸速度仅 4.25 km/s——
+      引力捕获不可能，必须借力 + 反推。木星则相反：自己的井比太阳在当地挖的还深 10 倍，所以借得上力。
+    </p>
+  </div>
+
+</div>
+<script>
+(function () {
+  'use strict';
+
+  /* ===== 常量与数据 ===== */
+  var PHI1 = 887.1;   // |Φ太阳| @ 1 AU，km²/s²（= GM☉ / AU）
+  var A_T = 0.6935;   // 地球→水星霍曼转移轨道半长轴（AU）
+  var V_MERC = 47.36; // 水星公转速度 km/s
+
+  var P = [
+    { name: '水星',   a: 0.387, m: 0.0553, r: 0.383, color: '#c9a48a', esc: 4.25,  vOrb: 47.36 },
+    { name: '金星',   a: 0.723, m: 0.815,  r: 0.949, color: '#e6c07b', esc: 10.36, vOrb: 35.02 },
+    { name: '地球',   a: 1.000, m: 1,      r: 1,     color: '#5aa9e6', esc: 11.19, vOrb: 29.78 },
+    { name: '火星',   a: 1.524, m: 0.107,  r: 0.532, color: '#e2725b', esc: 5.03,  vOrb: 24.07 },
+    { name: '木星',   a: 5.203, m: 317.8,  r: 10.97, color: '#d9a066', esc: 59.5,  vOrb: 13.07 },
+    { name: '土星',   a: 9.537, m: 95.2,   r: 9.14,  color: '#e3d3a0', esc: 35.5,  vOrb: 9.68 },
+    { name: '天王星', a: 19.19, m: 14.5,   r: 3.98,  color: '#8fd6e0', esc: 21.3,  vOrb: 6.80 },
+    { name: '海王星', a: 30.07, m: 17.1,   r: 3.87,  color: '#5b7fe0', esc: 23.5,  vOrb: 5.43 }
+  ];
+  for (var pi = 0; pi < P.length; pi++) {
+    var pp = P[pi];
+    pp.surf = pp.esc * pp.esc / 2;                       // 自身势阱深度 km²/s²
+    pp.sunLoc = PHI1 / pp.a;                             // 当地太阳势阱深度
+    pp.ratio = pp.surf / pp.sunLoc;
+    pp.hill = pp.a * Math.cbrt(pp.m / (3 * 332946));     // 希尔球半径（AU）
+  }
+
+  var MODES = {
+    inner: { r0: 0.25, r1: 2.2, log: false, ticks: [0.3, 0.5, 0.7, 1, 1.5, 2] },
+    full:  { r0: 0.03, r1: 32,  log: true,  ticks: [0.05, 0.1, 0.3, 1, 3, 10, 30] }
+  };
+
+  var DEFAULT_INFO =
+    '<div class="info-head">太阳才是主角 <span class="dim">· 把鼠标移到行星上查看数据</span></div>' +
+    '<div class="info-grid">' +
+      '<div><span>太阳势阱 @ 1 AU</span><b>887 km²/s²（逃逸 42.1 km/s）</b></div>' +
+      '<div><span>地球自身势阱</span><b>62.6 → 只有太阳的 1/14</b></div>' +
+      '<div><span>太阳势阱 @ 0.387 AU</span><b>2292 km²/s²（逃逸 67.7 km/s）</b></div>' +
+      '<div><span>水星自身势阱</span><b>9.0 → 只有太阳的 1/254</b></div>' +
+    '</div>';
+
+  /* ===== 元素 ===== */
+  var canvas = document.getElementById('cvSun');
+  var ctx = canvas.getContext('2d');
+  var compS = document.getElementById('compS');
+  var exS = document.getElementById('exS');
+  var hintS = document.getElementById('hintS');
+  var exTag = document.getElementById('exTag');
+  var infoEl = document.getElementById('infoSun');
+  var btnRun = document.getElementById('btnRun');
+  var runbar = document.getElementById('runbar');
+  var stStatus = document.getElementById('stStatus');
+  var stR = document.getElementById('stR');
+  var stV = document.getElementById('stV');
+  var stRel = document.getElementById('stRel');
+  var stPhi = document.getElementById('stPhi');
+  var stNote = document.getElementById('stNote');
+  var modeBtns = document.querySelectorAll('.mode-btn');
+
+  /* ===== 状态 ===== */
+  var W = 0, H = 540, DPR = 1;
+  var baseY = 0, maxPx = 0, axisY = 0, xPad = 16;
+  var mode = 'inner';
+  var exag = Math.min(40, Math.max(1, parseInt(exS.value, 10) || 5)); // 初值取自滑杆，避免刷新后被浏览器恢复的位置与内部状态不一致
+  var stars = [];
+  var marks = [];
+  var hoverIdx = -1;
+  var probe = null;
+  var rafId = 0;
+
+  /* ===== 工具 ===== */
+  function lerp(a, b, u) { return a + (b - a) * u; }
+  function vTrans(r) { return Math.sqrt(PHI1 * (2 / r - 1 / A_T)); }
+  function font(sz, w) {
+    return (w ? w + ' ' : '') + sz + 'px -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif';
+  }
+
+  function xOf(r) {
+    var m = MODES[mode], w = W - xPad * 2;
+    if (m.log) {
+      var l0 = Math.log10(m.r0), l1 = Math.log10(m.r1);
+      return xPad + (Math.log10(r) - l0) / (l1 - l0) * w;
+    }
+    return xPad + (r - m.r0) / (m.r1 - m.r0) * w;
+  }
+  function rOf(x) {
+    var m = MODES[mode], w = W - xPad * 2, u = (x - xPad) / w;
+    if (u < 0) u = 0;
+    if (u > 1) u = 1;
+    if (m.log) return Math.pow(10, lerp(Math.log10(m.r0), Math.log10(m.r1), u));
+    return lerp(m.r0, m.r1, u);
+  }
+
+  /* ===== 布局 ===== */
+  function layout() {
+    marks = [];
+    for (var i = 0; i < P.length; i++) {
+      var p = P[i];
+      var px = xOf(p.a);
+      if (px < xPad - 60 || px > W - xPad + 60) { marks.push(null); continue; }
+      var hillPx = Math.abs(xOf(p.a + p.hill) - px);
+      var w = hillPx * 5;
+      if (w < 14) w = 14;
+      if (w > 64) w = 64;
+      marks.push({ idx: i, px: px, w: w });
+    }
+  }
+
+  /* ===== 势阱曲线：太阳 1/r + 行星洛伦兹小坑 ===== */
+  // 势场可直接叠加，所以小坑的尾巴不需要截断：洛伦兹型处处光滑，
+  // 坑与坑之间自然过渡，不会出现硬截断那种台阶。
+  function curveD(x) {
+    var m = MODES[mode];
+    var d = 1 / rOf(x);
+    for (var i = 0; i < marks.length; i++) {
+      var mk = marks[i];
+      if (!mk) continue;
+      var q = (x - mk.px) / mk.w;
+      d += exag * (P[mk.idx].surf / PHI1) / (1 + q * q);
+    }
+    var cap = 1 / m.r0 * 1.12;
+    return d > cap ? cap : d;
+  }
+  function yOf(d) {
+    var m = MODES[mode];
+    var p = parseFloat(compS.value);
+    var u = Math.pow(Math.max(d, 0.0001) / (1 / m.r0), p);
+    var y = baseY + maxPx * u;
+    return y > axisY - 4 ? axisY - 4 : y;
+  }
+  function curveY(x) { return yOf(curveD(x)); }
+
+  /* ===== 绘制 ===== */
+  function draw() {
+    if (!W) return;
+    ctx.clearRect(0, 0, W, H);
+
+    var bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, '#060911');
+    bg.addColorStop(1, '#0b1222');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    var i, s;
+    for (i = 0; i < stars.length; i++) {
+      s = stars[i];
+      ctx.globalAlpha = s.a;
+      ctx.fillStyle = '#bcd4ff';
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    /* 地球处太阳势能水平虚线 */
+    var yRef = yOf(1);
+    ctx.setLineDash([4, 6]);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(120,200,160,0.28)';
+    ctx.beginPath();
+    ctx.moveTo(xPad, yRef);
+    ctx.lineTo(W - xPad, yRef);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.font = font(10);
+    ctx.fillStyle = 'rgba(140,210,170,0.55)';
+    ctx.textAlign = 'right';
+    ctx.fillText('地球处的太阳势能水平', W - xPad - 6, yRef - 5);
+
+    /* 太阳势阱曲线 */
+    var pts = [];
+    for (var x = xPad; x <= W - xPad; x += 2) pts.push([x, curveY(x)]);
+
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for (i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.lineTo(W - xPad, axisY);
+    ctx.lineTo(xPad, axisY);
+    ctx.closePath();
+    var fg = ctx.createLinearGradient(0, baseY, 0, axisY);
+    fg.addColorStop(0, 'rgba(232,176,106,0.05)');
+    fg.addColorStop(0.45, 'rgba(122,82,32,0.30)');
+    fg.addColorStop(1, 'rgba(4,8,20,0.96)');
+    ctx.fillStyle = fg;
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for (i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.lineWidth = 2.4;
+    ctx.strokeStyle = 'rgba(242,196,120,0.65)';
+    ctx.shadowColor = 'rgba(240,180,90,0.85)';
+    ctx.shadowBlur = 14;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 1.1;
+    ctx.strokeStyle = 'rgba(255,224,170,0.8)';
+    ctx.stroke();
+
+    /* 太阳辉光（左端） */
+    var yL = curveY(xPad + 2);
+    var gl = ctx.createRadialGradient(xPad + 4, yL, 2, xPad + 4, yL, 34);
+    gl.addColorStop(0, 'rgba(255,225,160,0.95)');
+    gl.addColorStop(0.25, 'rgba(250,200,110,0.35)');
+    gl.addColorStop(1, 'rgba(250,200,110,0)');
+    ctx.fillStyle = gl;
+    ctx.beginPath();
+    ctx.arc(xPad + 4, yL, 34, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.font = font(11);
+    ctx.fillStyle = 'rgba(235,195,140,0.60)';
+    ctx.textAlign = 'left';
+    ctx.fillText('← 太阳方向，井继续变深（表面 0.0047 AU，还要再深 6 倍+）', xPad + 10, 22);
+
+    /* 坐标轴 */
+    var m = MODES[mode];
+    ctx.strokeStyle = 'rgba(120,150,210,0.25)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(xPad, axisY);
+    ctx.lineTo(W - xPad, axisY);
+    ctx.stroke();
+    ctx.font = font(10);
+    ctx.fillStyle = 'rgba(125,150,195,0.6)';
+    ctx.textAlign = 'center';
+    for (i = 0; i < m.ticks.length; i++) {
+      var t = m.ticks[i];
+      var tx = xOf(t);
+      ctx.beginPath();
+      ctx.moveTo(tx, axisY);
+      ctx.lineTo(tx, axisY + 5);
+      ctx.stroke();
+      ctx.fillText(String(t), tx, axisY + 17);
+    }
+    ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(125,150,195,0.45)';
+    ctx.fillText('日心距离（AU）', W - xPad - 2, axisY - 8);
+
+    /* 行星 */
+    for (i = 0; i < marks.length; i++) {
+      var mk = marks[i];
+      if (!mk) continue;
+      var p = P[mk.idx];
+      var y = curveY(mk.px);
+      var isHover = mk.idx === hoverIdx;
+
+      ctx.beginPath();
+      ctx.moveTo(mk.px, y + 9);
+      ctx.lineTo(mk.px, axisY - 5);
+      ctx.setLineDash([3, 5]);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = isHover ? 'rgba(150,205,255,0.38)' : 'rgba(120,160,220,0.10)';
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      if (probe && mk.idx === 0 && probe.x <= mk.px + 10) {
+        ctx.beginPath();
+        ctx.arc(mk.px, y, 12, 0, Math.PI * 2);
+        ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = 'rgba(255,180,120,0.6)';
+        ctx.lineWidth = 1.4;
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      ctx.beginPath();
+      ctx.arc(mk.px, y, isHover ? 6.5 : 4, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = isHover ? 22 : 10;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      var label = p.name;
+      if (mk.idx === 2) label += '（出发）';
+      if (mk.idx === 0) label += '（到达）';
+      var lx = Math.max(Math.min(mk.px, W - xPad - 34), xPad + 30);
+      ctx.font = font(isHover ? 13 : 12, isHover ? '600' : '');
+      ctx.textAlign = 'center';
+      ctx.fillStyle = isHover ? '#ffffff' : 'rgba(196,220,248,0.75)';
+      ctx.fillText(label, lx, y - 12);
+    }
+
+    /* 探测器 */
+    if (probe) {
+      for (i = 0; i < probe.trail.length; i++) {
+        var tp = probe.trail[i];
+        var a = (i + 1) / probe.trail.length * 0.45;
+        ctx.globalAlpha = a;
+        ctx.fillStyle = '#8fd8ff';
+        ctx.beginPath();
+        ctx.arc(tp.x, tp.y, 1.2 + a * 2.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      var by = curveY(probe.x) - 8;
+      ctx.beginPath();
+      ctx.arc(probe.x, by, probe.rad, 0, Math.PI * 2);
+      ctx.fillStyle = '#a8e6ff';
+      ctx.shadowColor = 'rgba(120,200,255,1)';
+      ctx.shadowBlur = 18;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+  }
+
+  /* ===== 探测器演示（霍曼转移 + vis-viva） ===== */
+  function earthX() { return marks[2] ? marks[2].px : xOf(1); }
+  function mercX() { return marks[0] ? marks[0].px : xOf(0.387); }
+
+  function pathX(s) {
+    var x0 = earthX();
+    var x1 = Math.max(x0 - 34, xPad + 8);
+    var x2 = mercX();
+    var x3 = Math.max(x2 - 55, xPad + 8);
+    if (s < 0.10) return lerp(x0, x1, s / 0.10);
+    if (s < 0.85) return lerp(x1, x2, Math.pow((s - 0.10) / 0.75, 1.35));
+    return lerp(x2, x3, (s - 0.85) / 0.15);
+  }
+
+  function rNow() {
+    var r = rOf(probe.x);
+    if (r < 0.387) r = 0.387;
+    if (r > 1) r = 1;
+    return r;
+  }
+
+  function resetRunbar() {
+    runbar.classList.remove('done');
+    stNote.hidden = true;
+    stRel.style.color = '';
+    stStatus.textContent = '① 爬出地球自己的小坑（出发后 22.3 km/s，比地球慢 7.5 —— 这 7.5 就是出发 v∞）';
+    stR.textContent = '1.000 AU';
+    stV.textContent = '22.3 km/s';
+    stRel.textContent = '-25.1 km/s';
+    stPhi.textContent = '0 km²/s²';
+  }
+
+  function startProbe() {
+    probe = { t0: performance.now(), dur: 8000, x: earthX(), rad: 4, trail: [], done: false };
+    resetRunbar();
+    runbar.hidden = false;
+    btnRun.textContent = '■ 停止';
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function stopProbe() {
+    probe = null;
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = 0;
+    runbar.hidden = true;
+    runbar.classList.remove('done');
+    stNote.hidden = true;
+    stRel.style.color = '';
+    btnRun.textContent = '▶ 演示：地球→水星';
+    draw();
+  }
+
+  function tick(now) {
+    if (!probe) return;
+    var s = (now - probe.t0) / probe.dur;
+    if (s > 1) s = 1;
+    probe.x = pathX(s);
+    var r = rNow();
+    var v = vTrans(r);
+    probe.rad = 3.2 + v / 15;
+    probe.trail.push({ x: probe.x, y: curveY(probe.x) - 8 });
+    if (probe.trail.length > 28) probe.trail.shift();
+
+    stStatus.textContent = s < 0.10
+      ? '① 爬出地球自己的小坑（出发后 22.3 km/s，比地球慢 7.5 —— 这 7.5 就是出发 v∞）'
+      : (s < 0.85 ? '② 沿太阳势阱下滑，越掉越快' : '③ 到达水星轨道 —— 坑太浅，接不住！');
+    stR.textContent = r.toFixed(3) + ' AU';
+    stV.textContent = v.toFixed(1) + ' km/s';
+    stRel.textContent = (v - V_MERC >= 0 ? '+' : '') + (v - V_MERC).toFixed(1) + ' km/s';
+    stPhi.textContent = (PHI1 * (1 / r - 1)).toFixed(0) + ' km²/s²';
+
+    draw();
+    if (s >= 1) {
+      probe.done = true;
+      stStatus.textContent = '到达！你比水星快 10.1 km/s，不刹车就直接冲过去';
+      stRel.textContent = '+10.1 km/s';
+      stRel.style.color = '#ffb08a';
+      stNote.hidden = false;
+      runbar.classList.add('done');
+      btnRun.textContent = '↻ 重置演示';
+      return;
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+
+  /* ===== 信息面板 ===== */
+  function updateInfo(idx) {
+    if (idx < 0) { infoEl.innerHTML = DEFAULT_INFO; return; }
+    var p = P[idx];
+    var ratioTxt = p.ratio >= 1
+      ? p.ratio.toFixed(1) + ' 倍'
+      : (p.ratio * 100).toFixed(p.ratio * 100 < 1 ? 1 : 0) + '%';
+    var verdict = p.ratio >= 1
+      ? p.name + ' 的井比太阳在当地挖的还深——引力领地大，适合当刹车和借力跳板。'
+      : p.name + ' 只是太阳坡上的一个小坑（' + ratioTxt + '），到达时帮不上什么忙。';
+    infoEl.innerHTML =
+      '<div class="info-head" style="color:' + p.color + '">' + p.name + '</div>' +
+      '<div class="info-grid">' +
+        '<div><span>轨道半径</span><b>' + p.a + ' AU</b></div>' +
+        '<div><span>公转速度</span><b>' + p.vOrb + ' km/s</b></div>' +
+        '<div><span>逃逸速度</span><b>' + p.esc + ' km/s</b></div>' +
+        '<div><span>自身势阱</span><b>' + p.surf.toFixed(1) + ' km²/s²</b></div>' +
+        '<div><span>当地太阳势阱</span><b>' + p.sunLoc.toFixed(0) + ' km²/s²</b></div>' +
+        '<div><span>自身 / 太阳</span><b>' + ratioTxt + '</b></div>' +
+        '<div><span>希尔球（引力领地）</span><b>' + p.hill.toFixed(4) + ' AU</b></div>' +
+      '</div>' +
+      '<div class="verdict">' + verdict + '</div>';
+  }
+
+  /* ===== 交互 ===== */
+  function hitTest(clientX) {
+    var rect = canvas.getBoundingClientRect();
+    var mx = (clientX - rect.left) * (W / rect.width);
+    var best = -1, bestD = 60;
+    for (var i = 0; i < marks.length; i++) {
+      if (!marks[i]) continue;
+      var d = Math.abs(marks[i].px - mx);
+      if (d < bestD) { bestD = d; best = marks[i].idx; }
+    }
+    return best;
+  }
+  canvas.addEventListener('mousemove', function (e) {
+    var best = hitTest(e.clientX);
+    if (best !== hoverIdx) { hoverIdx = best; draw(); updateInfo(best); }
+  });
+  canvas.addEventListener('mouseleave', function () {
+    if (hoverIdx !== -1) { hoverIdx = -1; draw(); updateInfo(-1); }
+  });
+  canvas.addEventListener('touchstart', function (e) {
+    if (!e.touches.length) return;
+    var best = hitTest(e.touches[0].clientX);
+    hoverIdx = best;
+    draw();
+    updateInfo(best);
+  }, { passive: true });
+
+  function updateHint() {
+    var p = parseFloat(compS.value);
+    hintS.textContent = p >= 0.95 ? '真实纵向比例：内行星全挤在井底'
+      : (p >= 0.75 ? '接近真实纵向比例' : '纵向压缩 ' + p.toFixed(2) + '：1/r 陡壁能看全');
+  }
+  function updateExTag() {
+    exTag.textContent = exag === 1
+      ? '×1 · 真实比例（水星小坑仅为当地太阳势阱的 0.4%）'
+      : '×' + exag + ' · 所有小坑按同一倍数放大（真实比值见悬停面板）';
+  }
+
+  compS.addEventListener('input', function () { updateHint(); draw(); });
+  exS.addEventListener('input', function () {
+    exag = parseInt(exS.value, 10);
+    updateExTag();
+    draw();
+  });
+
+  Array.prototype.forEach.call(modeBtns, function (b) {
+    b.addEventListener('click', function () {
+      mode = b.getAttribute('data-mode');
+      Array.prototype.forEach.call(modeBtns, function (b2) {
+        b2.classList.toggle('active', b2 === b);
+      });
+      stopProbe();
+      layout();
+      updateHint();
+      draw();
+    });
+  });
+
+  btnRun.addEventListener('click', function () {
+    if (!probe) startProbe();
+    else if (!probe.done) stopProbe();
+    else startProbe();
+  });
+
+  /* ===== 尺寸 ===== */
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = Math.max(320, Math.round(canvas.parentElement.clientWidth));
+    H = W < 720 ? 440 : 540;
+    baseY = Math.round(H * 0.12);
+    maxPx = Math.round(H * 0.62);
+    axisY = H - 36;
+
+    canvas.width = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    canvas.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+    stars = [];
+    var count = Math.floor(W * H / 4200);
+    for (var i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 1.1 + 0.2,
+        a: Math.random() * 0.5 + 0.12
+      });
+    }
+
+    probe = null;
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = 0;
+    runbar.hidden = true;
+    runbar.classList.remove('done');
+    stNote.hidden = true;
+    stRel.style.color = '';
+    btnRun.textContent = '▶ 演示：地球→水星';
+
+    layout();
+    draw();
+  }
+  window.addEventListener('resize', resize);
+  window.__sunResize = resize;
+
+  resize();
+  updateInfo(-1);
+  updateHint();
+  updateExTag();
+})();
+</script>
+<script>
+
+(function () {
+  'use strict';
+
+  // 质量 m、半径 r 均以地球为 1（半径用平均半径）
+  const PLANETS = [
+    { name: '水星',  m: 0.0553, r: 0.383,  color: '#c9a48a', esc: 4.25,  g: 0.377 },
+    { name: '金星',  m: 0.815,  r: 0.949,  color: '#e6c07b', esc: 10.36, g: 0.905 },
+    { name: '地球',  m: 1,      r: 1,      color: '#5aa9e6', esc: 11.19, g: 1.000 },
+    { name: '火星',  m: 0.107,  r: 0.532,  color: '#e2725b', esc: 5.03,  g: 0.378 },
+    { name: '木星',  m: 317.8,  r: 10.97,  color: '#d9a066', esc: 59.5,  g: 2.641 },
+    { name: '土星',  m: 95.2,   r: 9.14,   color: '#e3d3a0', esc: 35.5,  g: 1.140 },
+    { name: '天王星', m: 14.5,  r: 3.98,   color: '#8fd6e0', esc: 21.3,  g: 0.915 },
+    { name: '海王星', m: 17.1,  r: 3.87,   color: '#5b7fe0', esc: 23.5,  g: 1.140 }
+  ];
+
+  const canvas = document.getElementById('cvP');
+  const ctx = canvas.getContext('2d');
+  const slider = document.getElementById('compP');
+  const hintEl = document.getElementById('hintP');
+  const infoEl = document.getElementById('infoP');
+
+  let W = 0, H = 520, DPR = 1;
+  let BASE_Y = 90, MAX_D = 310;
+  let stars = [];
+  let planets = [];
+  let hoverIdx = -1;
+
+  /* ---------------- 布局计算 ---------------- */
+
+  function layout() {
+    const p = parseFloat(slider.value);
+
+    // 势阱深度的原始量：|GM/R| ∝ m/r，按指数 p 压缩
+    const pots = PLANETS.map(pl => Math.pow(pl.m / pl.r, p));
+    const maxPot = Math.max.apply(null, pots);
+    const dScale = MAX_D / maxPot;
+
+    // 坑口宽度：正比于 sqrt(半径)，这样木星不至于宽到吞掉邻居
+    const rw = PLANETS.map(pl => Math.sqrt(pl.r));
+    const maxRW = Math.max.apply(null, rw);
+    const slot = W / PLANETS.length;
+    const maxW = Math.min(slot * 0.55, 82);
+
+    planets = PLANETS.map(function (pl, i) {
+      return {
+        idx: i,
+        name: pl.name,
+        color: pl.color,
+        esc: pl.esc,
+        g: pl.g,
+        m: pl.m,
+        r: pl.r,
+        x: slot * (i + 0.5),
+        depth: pots[i] * dScale,
+        width: (rw[i] / maxRW) * maxW
+      };
+    });
+  }
+
+  // 各行星势阱的叠加（洛伦兹型，中心为坑底，远处按 1/d² 衰减）
+  function depthAt(x) {
+    let d = 0;
+    for (let i = 0; i < planets.length; i++) {
+      const pl = planets[i];
+      const dx = x - pl.x;
+      d += pl.depth / (1 + (dx / pl.width) * (dx / pl.width));
+    }
+    return d;
+  }
+
+  /* ---------------- 绘制 ---------------- */
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    // 背景
+    const bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, '#060911');
+    bg.addColorStop(1, '#0b1222');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // 星点
+    for (let i = 0; i < stars.length; i++) {
+      const s = stars[i];
+      ctx.globalAlpha = s.a;
+      ctx.fillStyle = '#bcd4ff';
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // 采样曲线
+    const pts = [];
+    for (let x = 0; x <= W; x += 1) {
+      pts.push([x, BASE_Y + depthAt(x)]);
+    }
+
+    // 填充势阱内部
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.lineTo(W, H);
+    ctx.lineTo(0, H);
+    ctx.closePath();
+
+    const fg = ctx.createLinearGradient(0, BASE_Y, 0, H);
+    fg.addColorStop(0, 'rgba(70,130,220,0.07)');
+    fg.addColorStop(0.45, 'rgba(25,52,112,0.32)');
+    fg.addColorStop(1, 'rgba(4,8,20,0.95)');
+    ctx.fillStyle = fg;
+    ctx.fill();
+
+    // 曲线描边（外发光）
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.lineWidth = 2.4;
+    ctx.strokeStyle = 'rgba(110,180,255,0.55)';
+    ctx.shadowColor = 'rgba(90,170,255,0.9)';
+    ctx.shadowBlur = 16;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = 'rgba(205,232,255,0.75)';
+    ctx.stroke();
+
+    // 各行星
+    for (let i = 0; i < planets.length; i++) {
+      const pl = planets[i];
+      const y = BASE_Y + depthAt(pl.x);
+      const isHover = pl.idx === hoverIdx;
+
+      // 竖直引导线
+      ctx.beginPath();
+      ctx.moveTo(pl.x, y + 10);
+      ctx.lineTo(pl.x, H - 30);
+      ctx.setLineDash([3, 5]);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = isHover
+        ? 'rgba(150,205,255,0.38)'
+        : 'rgba(120,160,220,0.11)';
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 光点
+      ctx.beginPath();
+      ctx.arc(pl.x, y, isHover ? 7 : 4.5, 0, Math.PI * 2);
+      ctx.fillStyle = pl.color;
+      ctx.shadowColor = pl.color;
+      ctx.shadowBlur = isHover ? 24 : 11;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // 名称
+      ctx.font = isHover
+        ? '600 14px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif'
+        : '13px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = isHover ? '#ffffff' : 'rgba(186,212,244,0.7)';
+      ctx.fillText(pl.name, pl.x, H - 12);
+    }
+  }
+
+  /* ---------------- 信息面板 ---------------- */
+
+  function updateInfo(idx) {
+    if (idx < 0) {
+      infoEl.innerHTML =
+        '<div class="info-head"><span class="dim">把鼠标移到行星上查看数据</span></div>';
+      return;
+    }
+    const pl = PLANETS[idx];
+    const pot = (pl.m / pl.r).toFixed(3);
+    infoEl.innerHTML =
+      '<div class="info-head" style="color:' + pl.color + '">' + pl.name + '</div>' +
+      '<div class="info-grid">' +
+        '<div><span>质量（地球=1）</span><b>' + pl.m + '</b></div>' +
+        '<div><span>半径（地球=1）</span><b>' + pl.r + '</b></div>' +
+        '<div><span>表面重力（地球=1）</span><b>' + pl.g.toFixed(2) + '</b></div>' +
+        '<div><span>逃逸速度</span><b>' + pl.esc + ' km/s</b></div>' +
+        '<div><span>势阱深度（地球=1）</span><b>' + pot + '</b></div>' +
+      '</div>';
+  }
+
+  /* ---------------- 交互 ---------------- */
+
+  canvas.addEventListener('mousemove', function (e) {
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (W / rect.width);
+
+    let best = -1, bestD = 80;
+    for (let i = 0; i < planets.length; i++) {
+      const d = Math.abs(planets[i].x - mx);
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    if (best !== hoverIdx) {
+      hoverIdx = best;
+      draw();
+      updateInfo(best);
+    }
+  });
+
+  canvas.addEventListener('mouseleave', function () {
+    if (hoverIdx !== -1) {
+      hoverIdx = -1;
+      draw();
+      updateInfo(-1);
+    }
+  });
+
+  // 触屏支持
+  canvas.addEventListener('touchstart', function (e) {
+    if (!e.touches.length) return;
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.touches[0].clientX - rect.left) * (W / rect.width);
+    let best = -1, bestD = 80;
+    for (let i = 0; i < planets.length; i++) {
+      const d = Math.abs(planets[i].x - mx);
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    hoverIdx = best;
+    draw();
+    updateInfo(best);
+  }, { passive: true });
+
+  slider.addEventListener('input', function () {
+    const v = parseFloat(slider.value);
+    hintEl.textContent = v >= 0.95
+      ? '真实比例：水星几乎看不见了'
+      : (v >= 0.7 ? '接近真实比例' : '强压缩：所有坑都看得见');
+    layout();
+    draw();
+  });
+
+  /* ---------------- 尺寸 ---------------- */
+
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = Math.max(320, Math.round(canvas.parentElement.clientWidth));
+    H = W < 720 ? 400 : 520;
+    BASE_Y = H * 0.17;
+    MAX_D = H * 0.60;
+
+    canvas.width = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    canvas.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+    stars = [];
+    const count = Math.floor(W * H / 4200);
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 1.1 + 0.2,
+        a: Math.random() * 0.5 + 0.12
+      });
+    }
+
+    layout();
+    draw();
+  }
+
+  window.addEventListener('resize', resize);
+  window.__pv1Resize = resize;
+
+  // 启动
+  resize();
+  updateInfo(-1);
+  hintEl.textContent = '强压缩：所有坑都看得见';
+})();
+
+</script>
+<script>
+(function () {
+  var tabSun = document.getElementById('tabSun');
+  var tabP = document.getElementById('tabP');
+  var viewSun = document.getElementById('viewSun');
+  var viewP = document.getElementById('viewP');
+  function activate(sun) {
+    tabSun.classList.toggle('active', sun);
+    tabP.classList.toggle('active', !sun);
+    viewSun.hidden = !sun;
+    viewP.hidden = sun;
+    if (sun) { if (window.__sunResize) window.__sunResize(); }
+    else { if (window.__pv1Resize) window.__pv1Resize(); }
+  }
+  tabSun.addEventListener('click', function () { activate(true); });
+  tabP.addEventListener('click', function () { activate(false); });
+})();
+</script>
+</body>
+</html>
